@@ -2,12 +2,16 @@
 
 namespace Sashagm\Money\Providers;
 
-use Sashagm\Money\Console\Commands\InstallCommand;
+use Sashagm\Money\Traits\BootTrait;
 
 use Illuminate\Support\ServiceProvider;
+use Sashagm\Money\Console\Commands\InstallCommand;
 
 class MoneyServiceProvider extends ServiceProvider
 {
+
+    use BootTrait;
+
     /**
      * Register services.
      */
@@ -22,36 +26,65 @@ class MoneyServiceProvider extends ServiceProvider
     public function boot(): void
     {
 
+        $this->preLoad();
+
+        $this->registerRouter();
+
+        $this->registerLang();
+
+        $this->registerMigrate();
+
+        $this->publishFiles();
+
+        $this->registerCommands();
+
+        $this->bootSys();
+    }
+
+
+
+    protected function registerRouter()
+    {
+        $this->loadRoutesFrom(__DIR__ . '/../routes/money.php');
+    }
+
+    protected function registerMigrate()
+    {
+        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+    }
+
+    protected function preLoad()
+    {
 
         $this->mergeConfigFrom(
-            __DIR__.'/../config/money.php', 'money'
+            __DIR__ . '/../config/money.php',
+            'money'
         );
+    }
 
-        $this->loadRoutesFrom(__DIR__.'/../routes/money.php');
-
-        $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'money');
-
-        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');        
-
+    protected function publishFiles()
+    {
 
         $this->publishes([
-            __DIR__.'/../config/money.php' => config_path('money.php'),
+            __DIR__ . '/../config/money.php' => config_path('money.php'),
         ]);
 
         $this->publishes([
-            __DIR__.'/../resources/lang' => resource_path('lang/vendor/money'),
+            __DIR__ . '/../resources/lang' => resource_path('lang/vendor/money'),
         ]);
+    }
 
+    protected function registerLang()
+    {
+        $this->loadTranslationsFrom(__DIR__ . '/../resources/lang', 'money');
+    }
 
+    protected function registerCommands()
+    {
         if ($this->app->runningInConsole()) {
             $this->commands([
                 InstallCommand::class,
-
             ]);
         }
-
-        $this->app['router']->aliasMiddleware('sendMoney', \Sashagm\Money\Http\Middleware\SendMoney::class);
-        $this->app['router']->aliasMiddleware('abortMoney', \Sashagm\Money\Http\Middleware\AbortMoney::class);
-
     }
 }
