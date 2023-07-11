@@ -50,8 +50,8 @@ class MoneyServiceProvider extends ServiceProvider
             ]);
         }
 
-
-
+        $this->app['router']->aliasMiddleware('sendMoney', \Sashagm\Money\Http\Middleware\SendMoney::class);
+        $this->app['router']->aliasMiddleware('abortMoney', \Sashagm\Money\Http\Middleware\AbortMoney::class);
 
     }
 }

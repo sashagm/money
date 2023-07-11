@@ -15,5 +15,18 @@ use Sashagm\Money\Http\Controllers\TransferController;
 */
 
 
-Route::post('/transfer/send', [TransferController::class, 'send'])->name('transfer.send');
-Route::post('/transfer/abort', [TransferController::class, 'abort'])->name('transfer.abort');
+
+
+Route::group(['middleware' => ['web', 'auth'], 'prefix' => config('money.admin_prefix')], function ()  {
+  
+    Route::post('/transfer/send', [TransferController::class, 'send'])
+    ->name('transfer.send')
+    ->middleware('sendMoney');
+
+    Route::post('/transfer/abort', [TransferController::class, 'abort'])
+    ->name('transfer.abort')
+    ->middleware('abortMoney');
+
+
+
+});

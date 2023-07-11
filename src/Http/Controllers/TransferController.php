@@ -16,16 +16,32 @@ class TransferController extends Controller
 
     public function send(TransferRequest $request)
     {
-        $user = User::find(Auth::user());
-        $toUser = User::find($request->input('to_user_id'));
+        $user = User::find(Auth::user())->first();
+        $toUser = User::find($request->input('to_id'));
         $summa = $request->input('summa');
         $commission = $summa * config('money.transfer.free_transfer');
 
         $money = config('money.money_colum');
 
-        if ($user->$money >= $summa + $commission) {
-            $user->$money -= $summa + $commission;
-            $toUser->$money += $summa;
+        if($commission <= (int) config('money.transfer.min_trade')) {
+
+            return redirect()->back()->with('error', "Вы не можете отправить меньше чем ". config('money.transfer.min_trade') . "!");
+
+        }
+  
+
+        if($user->id == $toUser->id) {
+
+            return redirect()->back()->with('error', "Вы не можете отправить самому себе же!");
+
+        }        
+
+   
+
+        if ((int) $user->$money >= (int) $summa + $commission) {
+            
+            $user->$money -= (int) $summa + $commission;
+            $toUser->$money += (int) $summa;
             $user->save();
             $toUser->save();
 
@@ -47,11 +63,16 @@ class TransferController extends Controller
     {
         $transfer = Transfer::find($request->input('transfer_id'));
         $money = config('money.money_colum');
+        
 
-        if ($transfer && $transfer->status == 2) {
+        if ($transfer && $transfer->status == 1) {
             $user = User::find($transfer->from_id);
-            $user->$money += $transfer->summa;
+            $user->$money += (int) $transfer->summa;
             $user->save();
+
+            $user2 = User::find($transfer->to_id);
+            $user2->$money -= (int) $transfer->summa;
+            $user2->save();
 
             $transfer->status = 0;
             $transfer->save();
