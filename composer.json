@@ -1,6 +1,6 @@
 {
     "name": "sashagm/money",
-    "description": "description",
+    "description": "Laravel Transfer Package",
     "minimum-stability": "stable",
     "license": "MIT",
     "authors": [
