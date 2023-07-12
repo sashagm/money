@@ -23,23 +23,25 @@ class TransferController extends Controller
 
         $money = config('money.money_colum');
 
-        if($commission <= (int) config('money.transfer.min_trade')) {
+        if ($commission <= (int) config('money.transfer.min_trade')) {
 
-            return redirect()->back()->with('error', "Вы не можете отправить меньше чем ". config('money.transfer.min_trade') . "!");
-
+            return redirect()
+            ->back()
+            ->with('error', "Вы не можете отправить меньше чем " . config('money.transfer.min_trade') . "!");
         }
-  
 
-        if($user->id == $toUser->id) {
 
-            return redirect()->back()->with('error', "Вы не можете отправить самому себе же!");
+        if ($user->id == $toUser->id) {
 
-        }        
+            return redirect()
+            ->back()
+            ->with('error', "Вы не можете отправить самому себе же!");
+        }
 
-   
+
 
         if ((int) $user->$money >= (int) $summa + $commission) {
-            
+
             $user->$money -= (int) $summa + $commission;
             $toUser->$money += (int) $summa;
             $user->save();
@@ -53,9 +55,13 @@ class TransferController extends Controller
             $transfer->status = 1;
             $transfer->save();
 
-            return redirect()->back()->with('success', 'Перевод выполнен успешно!');
+            return redirect()
+            ->back()
+            ->with('success', 'Перевод выполнен успешно!');
         } else {
-            return redirect()->back()->with('error', 'Недостаточно средств для перевода!');
+            return redirect()
+            ->back()
+            ->with('error', 'Недостаточно средств для перевода!');
         }
     }
 
@@ -63,11 +69,36 @@ class TransferController extends Controller
     {
         $transfer = Transfer::find($request->input('transfer_id'));
         $money = config('money.money_colum');
-        
+
 
         if ($transfer && $transfer->status == 1) {
+
+            if (config('money.transfer.abort_limit')) {
+
+                // Проверяем, прошло ли более 24 часов с момента создания перевода
+                $created_at = Carbon::parse($transfer->created_at);
+                $now = Carbon::now();
+                $diffInHours = $created_at->diffInHours($now);
+
+                if ($diffInHours > config('money.transfer.abort_time')) {
+                    return redirect()
+                    ->back()
+                    ->with('error', "Невозможно отменить перевод, прошло более ".config('money.transfer.abort_time'). ' '. config('money.transfer.abort_clock'). "!");
+                }
+            }
+
             $user = User::find($transfer->from_id);
-            $user->$money += (int) $transfer->summa;
+
+            if(config('money.transfer.free_abort')) {
+
+                $commission = $transfer->summa * config('money.transfer.free_abort_transfer');
+
+            } else {
+
+                $commission = 0;
+            }
+
+            $user->$money += (int) $transfer->summa - $commission;
             $user->save();
 
             $user2 = User::find($transfer->to_id);
@@ -77,22 +108,14 @@ class TransferController extends Controller
             $transfer->status = 0;
             $transfer->save();
 
-            // Проверяем, прошло ли более 24 часов с момента создания перевода
-            $created_at = Carbon::parse($transfer->created_at);
-            $now = Carbon::now();
-            $diffInHours = $created_at->diffInHours($now);
 
-            if (config('money.transfer.abort_limit')) {
-
-                if ($diffInHours > config('money.transfer.abort_time')) {
-                    return redirect()->back()->with('error', "Невозможно отменить перевод, прошло более config('money.transfer.abort_time') часов!");
-                }
-
-            } 
-
-            return redirect()->back()->with('success', 'Перевод отменен успешно!');
+            return redirect()
+            ->back()
+            ->with('success', 'Перевод отменен успешно!');
         } else {
-            return redirect()->back()->with('error', 'Невозможно отменить перевод!');
+            return redirect()
+            ->back()
+            ->with('error', 'Невозможно отменить перевод!');
         }
     }
 }

@@ -21,7 +21,7 @@ class AbortMoney
             return $next($request);
         }
 
-        $colum = config('money.check.abort_colum');
+        $colum = config('money.check.save_colum');
         $val = config('money.check.abort_value');
         $guard = config('money.check.guard');
 
