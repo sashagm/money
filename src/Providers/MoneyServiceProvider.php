@@ -6,6 +6,12 @@ use Sashagm\Money\Traits\BootTrait;
 
 use Illuminate\Support\ServiceProvider;
 use Sashagm\Money\Console\Commands\InstallCommand;
+use Sashagm\Money\Console\Commands\PayMoneyCommand;
+use Sashagm\Money\Console\Commands\GiveMoneyCommand;
+use Sashagm\Money\Console\Commands\SendMoneyCommand;
+use Sashagm\Money\Console\Commands\AbortTransferCommand;
+use Sashagm\Money\Console\Commands\TransferMoneyCommand;
+use Sashagm\Money\Console\Commands\TransferStatusCommand;
 
 class MoneyServiceProvider extends ServiceProvider
 {
@@ -84,6 +90,12 @@ class MoneyServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 InstallCommand::class,
+                GiveMoneyCommand::class,
+                PayMoneyCommand::class,
+                TransferMoneyCommand::class,
+                SendMoneyCommand::class,
+                AbortTransferCommand::class,
+                TransferStatusCommand::class,
             ]);
         }
     }

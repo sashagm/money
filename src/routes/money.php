@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Sashagm\Money\Http\Controllers\BonusController;
 use Sashagm\Money\Http\Controllers\TransferController;
 
 /*
@@ -26,6 +27,11 @@ Route::group(['middleware' => ['web', 'auth'], 'prefix' => config('money.admin_p
     Route::post('/transfer/abort', [TransferController::class, 'abort'])
     ->name('transfer.abort')
     ->middleware('abortMoney');
+
+
+    Route::post('/transfer/bonus', [BonusController::class, 'getBonus'])
+    ->name('transfer.bonus')
+    ->middleware('getBonus');  
 
 
 
