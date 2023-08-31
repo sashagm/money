@@ -97,6 +97,16 @@ class MoneyServiceProvider extends ServiceProvider
                 AbortTransferCommand::class,
                 TransferStatusCommand::class,
             ]);
+        } else {
+            $this->commands([
+                InstallCommand::class,
+                GiveMoneyCommand::class,
+                PayMoneyCommand::class,
+                TransferMoneyCommand::class,
+                SendMoneyCommand::class,
+                AbortTransferCommand::class,
+                TransferStatusCommand::class,
+            ]);
         }
     }
 }

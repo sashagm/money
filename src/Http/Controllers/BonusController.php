@@ -41,11 +41,12 @@ class BonusController extends Controller
 
         $randomAmount = rand(config('money.bonus.min'), config('money.bonus.max')) / 100;
 
-        $null = rand(0, 1);
-
-        if ($null == 0 ) {
+        if (rand(1, 100) <= config('money.bonus.chance')) {
+            // Бонус выпал
+        } else {
             $randomAmount = 0;
         }
+
   
         $bonus = new Bonus();
         $bonus->user_id = $user->id;
@@ -63,5 +64,22 @@ class BonusController extends Controller
     }
 
  
+    public function customBonus($id, Request $request)
+    {
+
+        $customBonuses = config('money.custom');
+
+        if (isset($customBonuses[$id])) {
+
+        echo "Process...";
+        
+        } else {
+            return redirect()->back()->with('error', 'Такой бонус не найден!');
+        }
+
+
+    }
+
+
     
 }

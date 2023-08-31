@@ -33,6 +33,8 @@ Route::group(['middleware' => ['web', 'auth'], 'prefix' => config('money.admin_p
     ->name('transfer.bonus')
     ->middleware('getBonus');  
 
-
+    Route::get('/transfer/bonus/{id}', [BonusController::class, 'customBonus'])
+    ->name('transfer.bonus.custom')
+    ->middleware('getBonus'); 
 
 });

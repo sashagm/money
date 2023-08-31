@@ -21,7 +21,7 @@ class InstallCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Данная команда создаст необходимые файлы.';
+    protected $description = 'Данная команда создаст необходимые файлы для пакета money.';
 
     /**
      * Execute the console command.
